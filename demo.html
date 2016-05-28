@@ -1,0 +1,702 @@
+﻿<html>
+    <head>
+	    <meta charset='utf-8'>
+	    <title>task-027</title>
+		<style type='text/css'>
+#universe {
+    width:   600px;
+	height:  600px;
+	border:  thin solid black;
+	margin:  20px;
+	display: inline-block;
+	position: relative;
+}
+
+#conmmand {
+    border:  thin solid black;
+	margin:  20px;
+	
+	width:   600px;
+	display: inline-block;
+	vertical-align:  top;
+}
+#pannel {
+    height: 90px;
+	margin: 20px;
+	border: thin solid black;
+}
+#factory {
+    height: 130px;
+	margin: 20px;
+	border: thin solid black;
+	padding:  8px;
+	display:  table;
+}
+
+.tr {
+    display:  table-row;
+}
+
+.c1 {
+    display:  table-cell;
+}
+
+#log {
+    font-family: Inconsolata;
+    display:   table;
+	border-collapse:   collapse;
+	margin:  20px;
+}
+
+.sth {
+        display:   table-header-group;
+}
+.str {
+    display:  table-header-group;
+}
+
+.stc {
+    display:  table-cell;
+	padding:  3px 10px 3px 10px;
+	border:   thin solid black;
+}
+
+.rot {
+    width:    80px;
+	height:   30px;
+	border-radius:  15px;
+    position: absolute;
+    top:      0px;	
+	left:     0px;
+	background-color:  #1c1c1c;
+	transform: rotate(50deg);
+	color: white;
+	text-align: center;
+	vertical-align: middle;
+}
+.pad {
+    width:    80px;
+	height:   30px;
+	display:  inline-block;
+	background-color:  blue;
+	border-radius:  15px;
+	float: left;
+}
+.number {
+    position:   absolute;
+	top:  2px;
+	left: 10px;
+}
+		</style>
+	</head>
+	<body>
+	    
+	    <div id='universe'></div>
+		<div id='conmmand'>
+		    <div id='pannel'>
+			    
+			</div>
+			<div id='factory'>
+			    <div class='tr'>
+		            <span class='c1'>动力系统选择：</span>
+			        <span class='c1'>
+			            <input type='radio' value='rx1' name='engine' checked='checked'><span>高达号 </span>
+			            <input type='radio' value='rx2' name='engine'><span>独角兽</span>
+			            <input type='radio' value='rx3' name='engine'><span>新安州</span>
+			        </span>
+				</div>
+			    <div class='tr'>
+			        <span class='c1'>能源系统选择：</span>
+			        <span class='c1'>
+			            <input type='radio' value='px1' name='energy' checked='checked'><span>核动力</span>
+			            <input type='radio' value='px2' name='energy'><span>光能勇士</span>
+			            <input type='radio' value='px3' name='energy'><span>涡轮喷气</span>
+			        </span> 
+                </div>
+                <div class='tr'>				
+					<span class='c1'>输入轨道半径:</span>
+					<input class='c1' type='text' value='250' id='rad' />
+				</div>
+			    <div class='tr'>    
+					<button class='c1' id='create'>新建飞船</button>
+			        <button class='c1' id='cum'>通信测试</button>
+				</div>
+		    </div>
+			<div id='log'>
+			</div>
+		</div>
+		
+	    <script type='text/javascript'>
+	//
+	window.onload = (function() {
+    // ship to base --> id, status, energy
+	// base to ship --> id, command
+	var Bag = function(id, arg2, arg3) {
+	    var bag = new Object();
+		bag.id = id;
+		if (arguments.length === 2) {
+		    bag.command = arg2;
+		} else if (arguments.length === 3) {
+		    bag.status = arg2;
+			bag.energy = arg3
+		} else {
+		    console.log("create package error, arguments.lenght = " + arguments.length);
+		}
+	    return bag;
+	};
+	
+	var Bag2Hex = function(bag, type) {
+	    return bag;
+	};
+	
+	var Hex2Bag = function(hex, type) {
+	    return hex;
+	};
+		
+    var Ship = function(id, engine, energy, mediator, radius) {
+	    console.log('a ship is created! id is: ' + id + ' energy source is: ' + energy);
+		var deg = Math.floor(360 * Math.random());
+		var power = 100;
+		var state = false;
+		var toBeDes = false;
+		var x1 = 300 + Math.sin(2 * Math.PI / 360 * deg)*radius - 40;
+	    var y1 = 300 - Math.cos(2 * Math.PI / 360 * deg)*radius - 15;
+	    var x2 = Math.ceil(x1);
+	    var y2 = Math.ceil(y1);
+	    		
+		var dom = document.createElement('div');
+		dom.setAttribute('class', 'rot');
+		var pad = document.createElement('div');
+		pad.setAttribute('class', 'pad');
+		var number = document.createElement('div');
+		number.setAttribute('class', 'number');
+		number.innerText = '100%'
+		dom.appendChild(pad);
+		dom.appendChild(number);
+		var rt = "top: " + y2 + "px; left: " + x2 + "px; transform: rotate(" + deg + "deg);"
+	    dom.setAttribute("style", rt);
+		var uni = document.getElementById('universe');
+	  	uni.appendChild(dom);
+		
+		var vol = 0.25;
+		if (engine === 'rx1') vol = 0.25;
+		if (engine === 'rx2') vol = 0.5;
+		if (engine === 'rx3') vol = 0.75;
+		
+		var charge = 0.1;
+		if (energy === 'px1')   charge = 1;
+		if (energy === 'px2')   charge = 2;
+		if (energy === 'px3')   charge = 2.5;
+		
+		var cost = 0.25;
+		if (engine === 'rx1') cost = 3;
+		if (engine === 'rx2') cost = 4;
+		if (engine === 'rx3') cost = 5;
+		
+	
+	    var getNextPower = function() {
+		    if (state === false && power < 100) {
+			    power += charge;
+				if (power > 100) {
+				    power = 100;
+				}
+			}
+			if (state === true) {
+			    power = power - cost;
+				if (power < 0) {
+				    state = false;
+					power = 0;
+				}
+			}
+		};
+		
+		
+		var getNextPosition = function() {
+		    deg += vol;
+			if (deg > 360) {
+			    deg = 0;
+			}
+			x1 = 300 + Math.sin(2 * Math.PI / 360 * deg)*radius - 40;
+	        y1 = 300 - Math.cos(2 * Math.PI / 360 * deg)*radius - 15;
+	        x2 = Math.ceil(x1);
+	        y2 = Math.ceil(y1);
+		};
+		
+		
+		var cnt = 0;
+		var render = function() {
+		    cnt = cnt + 1;
+			if (cnt > 25) {
+			    cnt = 0;
+				getNextPower();
+				var number = dom.getElementsByClassName('number');
+			    number[0].innerText = id + '号' + power + '%';
+				var pad = dom.getElementsByClassName('pad');
+			    var width = Math.floor(80 * power / 100);
+			    pad[0].setAttribute('style', 'width: ' + width + 'px;');
+			}
+            if (state === true) {
+                		
+			    getNextPosition();
+				var fdeg = Math.floor(deg);
+				var rt = "top: " + y2 + "px; left: " + x2 + "px; transform: rotate(" + fdeg + "deg);"
+			    dom.setAttribute("style", rt);
+			}
+			if (!toBeDes) {
+    			requestAnimationFrame(render, 40);
+			}
+		};
+				
+		var start = function() {
+			state = true;
+			console.log('who fucking call this function!!!!!!!!!!!!!!!!!!!');
+		};
+		
+		var stop = function() {
+		    state = false;
+		};
+		
+		var report = function() {
+		    var bag = {
+			    id:      0,
+				thisId:  id,
+				state:  state,
+				power:   power,
+				engine:  engine,
+				energy:  energy
+			};
+			mediator.transmit(bag, id);
+			console.log('shuttle report: id-' + bag.id + ' power-' + bag.power + ' state-' + bag.state);
+			if (!toBeDes) {
+			    setTimeout(report, 1000);
+			}
+		};
+		var destory = function() {
+		    if (dom.parentNode) {
+		        dom.parentNode.removeChild(dom);
+			}
+		};
+		
+		var parse = function(bag) {
+		    if (bag.id !== id) {
+			    console.log("shuttle route error, this id is: " + id + ',target id is:' +  bag.id);
+				return;
+			}
+			if (bag.command === 'start') {
+			    start();
+				return;
+			}
+			if (bag.command === 'stop') {
+			    stop();
+				return;
+			}
+			if (bag.command === 'destory') {
+			    destory();
+				toBeDes = true;
+				return;
+			}
+			console.log(id + '  shuttle parse bag error');
+		};
+		
+		//first time to report
+		report();
+		render();
+	    return {
+			getId: function() { return id;},
+			receive: function(bag) {
+			    console.log('receive a bag' + bag.id + '   ' + bag.command);
+				parse(bag);
+				var nbg = new Object();
+				nbg.command = 'ack';
+				nbg.id = 0;
+			    mediator.transmit(nbg, 1);
+			}
+		};
+	};
+	var mediator = (function(delay){
+	    var ships = [];
+	    return {
+		    signIn:   function(ship) {
+			    ships[ships.length] = ship;
+			},
+			signOut:  function(id) {
+				for (num in ships) {
+				    if (ships[num].getId() === id) {
+					    ships.splice(num, 1);
+						break;
+					}
+				}
+			},
+			transmit: function(bag, srcId) {
+			    console.log('mediator received a bag from ' +  srcId + ' to: ' + bag.id);
+				console.log('mediator received a bag the content is: ' +  bag.command);
+				
+			    var index = -1;
+				for (var num in ships) {
+				    if (bag.id === ships[num].getId()) {
+					    index = ships[num];
+						break;
+					}
+				}
+				if (Math.random() < 0.9 && index !== -1) {
+				    index.receive(bag);
+				}
+				if (index === -1) {
+					for (var num in ships) {
+					    console.log('Mediator:  rout error');
+					    if (ships[num].getId() === 0) {
+						    ships[num].receive({
+							    id:      0,
+								command: '404'
+							});
+						}
+					} 
+				}
+			}
+		};
+	})(300);
+	
+	
+	var dock = (function(maxSize){
+	    var ships = [];
+	    var getId = function() {
+		    var id = -1;
+			if (ships.length < maxSize) {
+			    var dummy = [0, 0, 0, 0];
+				for (var i = 0; i < ships.length; i++) {
+				    dummy[ships[i].getId() - 1] = 1;
+				}
+				for (var i = 0; i < dummy.length; i++) {
+				    if (dummy[i] === 0)  {
+					    id = i + 1;
+						break;
+					}
+				}
+			} 
+			return id;
+		};
+		var resign = function(ship) {
+		    if (ships.length < maxSize) {
+    		    ships[ships.length] = ship;
+			}
+		};
+		var design = function(id) {
+		    var index = -1;
+		    for (var i = 0; i < ships.length; i++) {
+			    if (ships[i].getId() === id) {
+				    index = i;
+				    break;
+				}
+			}
+			if (index >= 0) {
+			    ships.splice(index, 1);
+			}
+			return index;
+		};
+	    return {
+		    getId:     getId,
+			design:    design,
+			resign:    resign
+		};
+	})(4);
+	
+	var pannel = (function(dom){
+	    var ships = [];
+		var commander = null;
+		var render  = function() {
+		    var prePan = document.getElementById(dom);
+			var pan = document.createElement('div');
+			pan.setAttribute('id', 'pannel');
+			for (var num in ships) {
+			    var row = document.createElement('div');
+				var name = document.createElement('span');
+				name.innerHTML = '对' + ships[num] + '号飞船下达指令: ';
+				row.appendChild(name);
+				//startBtn
+				btnFactory(row, ships[num], '开始飞行', 'start');
+				btnFactory(row, ships[num], '停止飞行', 'stop');
+				btnFactory(row, ships[num], '销毁飞船', 'destory');
+				pan.appendChild(row);
+			}
+			prePan.parentNode.replaceChild(pan, prePan);
+		};
+		
+		function btnFactory(parent, id, text, command) {
+		    var btn = document.createElement('button');
+			btn.innerText = text;
+			btn.onclick = function() {
+			    console.log('command to:' + id + '  ' + command);
+				commander.pan(id, command);
+			};
+			parent.appendChild(btn);
+		}
+		
+		var addItem = function(id) {
+		    ships[ships.length] = id;
+			render()
+		};
+		var delItem = function(id) {
+		    var index = -1;
+			for (var num in ships) {
+			    if (ships[num] === id) {
+				    index = num;
+				}
+			}
+			ships.splice(index, 1);
+			render()
+		};
+		var connect = function(p) {
+		    commander = p;
+		};
+		
+		return {
+		    addItem: addItem,
+			delItem: delItem,
+			connect: connect
+		};
+	})('pannel');
+	
+	var base = (function(factory, btn) {
+	    var create = document.getElementById(btn);
+		create.onclick = function() {
+		    console.log('create key pressed');	
+			rad = document.getElementById('rad').value;
+			r = parseInt(rad);
+			id = dock.getId();
+			if (id > 0) {
+			    var ship = Ship(id, getRadio('engine'), getRadio('energy'), mediator, r);
+				console.log('the fucking energy is: ' + getRadio('energy'));
+				dock.resign(ship);
+				pannel.addItem(id);
+				mediator.signIn(ship);
+			} else {
+			    console.log('轨道资源耗尽');
+			}		
+		}
+		
+		function getRadio(name) {
+		    var radios = document.getElementsByName(name);
+			var value = undefined;
+			for (var radio in radios) {
+			    if(radios[radio].checked) {
+				    value = radios[radio].value;
+					break;
+				}
+			}
+		    return value;
+		}
+	    // when key pressed, call mediator
+	})('factory', 'create');
+	
+	var redo = (function() {
+	    var id = 0;
+	    var READY = true, NOREADY = false, ACK = true, NOACK = false;
+	    var status = READY, ack = NOACK;
+		var commander = null;
+		
+		var connect = function(people) {
+		    commander = people;
+		};
+		
+		var isReady = function() {
+			return status;
+		};
+		
+		var receive = function(bag) {
+			if(bag.command === 'ack' || bag.command === '404') {
+			    ack = ACK;
+				console.log('receive a ACK: ' + bag.command);
+			} else {
+			    console.log('transmit data bag to commander');
+				if (commander !== null) {
+				   commander.report(bag);
+				}
+			}
+		};
+		
+		var transmit = function(bag, fn) {
+		    var myDate = new Date();
+			console.log('redo.transmit called in: ' + myDate.toLocaleString());
+		    console.log('status and ack are :' + status + '   ' + ack);
+			if (status === READY) {
+			    status = NOREADY;
+				ack = NOACK;
+				mediator.transmit(bag, 0);
+				setTimeout(function() {
+				    transmit(bag, fn);
+				}, 500);
+				return;
+			}
+			if (status === NOREADY && ack === NOACK) {
+			    mediator.transmit(bag, 0)
+				setTimeout(function() {
+				    transmit(bag, fn);
+				}, 500);
+				return;
+			}
+			if (status === NOREADY && ack === ACK) {
+			    ack = NOACK;
+				status = READY;
+				fn();
+				return;
+			}
+		};
+		return {
+		    isReady: isReady,	
+            receive: receive,
+            transmit: transmit,
+			connect:  connect,
+            getId:    function() {
+			    return id;
+			}			
+		};
+	})();
+	
+	var screen = (function(h) {
+	    
+		
+		var shipList = [];
+		var bagList = [];
+		
+		var getIndexById = function(id) {
+		    var index = -1;
+		    for (var num in shipList) {
+			    if(shipList[num] == id) {
+				    index = num;
+					break;
+				}
+			}
+			return index;
+		};
+		
+		var renderTR = function(args, type) {
+		    var table = document.getElementById('log'); 
+		    var tr = document.createElement('div');
+			if (type === 'th') {
+			    tr.setAttribute('class', 'sth');
+			} else {
+			    tr.setAttribute('class', 'str');
+			}
+			for (var i = 0; i < args.length; i++) {
+			    var tc = document.createElement('div');
+				tc.setAttribute('class', 'stc');
+				tc.innerText = args[i];
+				tr.appendChild(tc);
+			}
+			return tr;
+		};
+		
+		var render = function() {
+		    var table = document.getElementById('log');
+		    var t = document.createElement('div');
+			t.setAttribute('id', 'log');
+			var _th = ['飞船', '动力系统',  '能源系统', '当前飞行状态', '剩余能耗'];
+			var th = renderTR(_th, 'th');
+			t.appendChild(th);
+			
+			for (var i in shipList) {
+			    var bag = bagList[i];
+				var engine = (bag.engine == 'rx1') && '高达号' || (bag.engine == 'rx2') && '独角兽' || (bag.engine == 'rx3') && '独角兽' || "EVA";
+				var energy = (bag.energy == 'px1') && '核动力' || (bag.energy == 'px2') && '光能勇士' || (bag.energy == 'px3') && '涡轮喷气' || "EVA";
+				var state = bag.state && '飞行中' || "暂停中";
+			    var list = [bag.thisId, engine, energy, state, bag.power];
+			    var tr = renderTR(list, 'tr');
+			    t.appendChild(tr);
+			}
+			table.parentNode.replaceChild(t, table);
+		};
+		
+		var addItem = function(bag) {
+		    var index = getIndexById(bag.thisId);
+			if (index !== -1) {
+			    bagList[index] = bag;
+			} else {
+			    bagList[bagList.length] = bag;
+				shipList[shipList.length] = bag.thisId;
+			}
+			render();
+		};
+		
+		var delItem = function(id) {
+		    var index = getIndexById(id);
+			if (index !== -1) {
+			    bagList.splice(index, 1);
+				shipList.splice(index, 1);
+			} else {
+			    console.log('screen delete Item error:  Item not found');
+			}
+			render();
+		};
+		// init		
+		render();
+		return {
+		    addItem:     addItem,
+			delItem:     delItem,
+		};
+	})('log');
+	
+	
+	var commander = (function() {
+	    var report = function(bag) {
+		    //receive bag to call screen
+			screen.addItem(bag);
+		};
+		var des = function(id) {
+		    return function() {
+			    mediator.signOut(id);
+				dock.design(id);
+				pannel.delItem(id);
+				screen.delItem(id);
+			};
+		};
+		var newShip = function(id) {
+		    //factory --> dock   
+		};
+		
+		var pan = function(id, command) {
+		    var bag = new Object();
+			bag.id = id;
+			bag.command = command;
+		    if (command === 'start' || command === 'stop') {
+			    redo.transmit(bag, (function(){
+				    console.log('start or stop a ship');
+				}));
+			}
+			if (command === 'destory') {
+			    redo.transmit(bag, des(id));
+			}
+		};
+	    return {
+		    init:     function() {
+			    redo.connect(this);
+				pannel.connect(this);
+				mediator.signIn(redo);
+				//screen.connect(this);
+			},
+		    report:   report,
+			newShip:  newShip,
+			pan:   pan
+		};
+	})();
+	
+	
+	commander.init();
+	
+	
+	
+//	mediator.signIn(redo);
+	var btn_com = document.getElementById('cum');
+	btn_com.onclick = function() {
+	    if (redo.isReady()) {
+		    redo.transmit({
+			    id: 2,
+				command: 'start'
+			} , (function(){console.log('boring')}));
+		} else {
+		    console.log('the link is busy');
+		}
+	};
+})();
+		</script>
+	</body>
+</html>
